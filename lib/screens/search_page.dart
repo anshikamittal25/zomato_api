@@ -1,16 +1,10 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:restaurant_search/app_state.dart';
 import 'package:restaurant_search/models/restaurant.dart';
 import 'package:restaurant_search/services/zomato_api_calls.dart';
 import 'package:restaurant_search/tiles/restaurant_tile.dart';
-import 'package:restaurant_search/models/search_options.dart';
-import 'package:zomato_client/model/categories.dart';
-import 'package:zomato_client/model/cities.dart';
-import 'package:zomato_client/model/collections.dart';
-import 'package:zomato_client/model/cuisines.dart';
-import 'package:zomato_client/zomato_client.dart';
-
 import 'filters_page.dart';
 
 class SearchPage extends StatefulWidget {
@@ -25,7 +19,6 @@ class _SearchPageState extends State<SearchPage> {
   final _formKey = GlobalKey<FormState>();
   TextEditingController _searchController = TextEditingController();
   bool isSearched;
-  SearchOptions _searchOptions;
 
   @override
   initState() {
@@ -36,6 +29,8 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
+    final state=Provider.of<AppState>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
@@ -85,8 +80,8 @@ class _SearchPageState extends State<SearchPage> {
                   icon: Icon(
                     Icons.filter_list_alt,
                   ),
-                  onPressed: () async {
-                    _searchOptions = await Navigator.push(context,
+                  onPressed: () {
+                    Navigator.push(context,
                         MaterialPageRoute(builder: (context) => FiltersPage()));
                   },
                 ),
@@ -105,7 +100,7 @@ class _SearchPageState extends State<SearchPage> {
             else
               Expanded(
                 child: FutureBuilder(
-                  future: getRestaurants(_searchController.text,_searchOptions),
+                  future: getRestaurants(_searchController.text,state.searchOptions),
                   builder: (context, snapshot) {
                     if (snapshot.hasError) {
                       return Center(child: Text('Something went wrong!'));

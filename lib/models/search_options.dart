@@ -1,5 +1,3 @@
-import 'category.dart';
-
 class SearchOptions{
   List<int> categories = [];
   String location;

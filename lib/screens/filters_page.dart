@@ -1,21 +1,19 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:restaurant_search/app_state.dart';
+import 'package:restaurant_search/data/options_data.dart';
 import 'package:restaurant_search/models/category.dart';
-import 'package:restaurant_search/models/search_options.dart';
 import 'package:restaurant_search/services/zomato_api_calls.dart';
 
 class FiltersPage extends StatefulWidget {
-  final location = ['city', 'subzone', 'zone', 'landmark', 'metro', 'group'];
-  final order = ['asc', 'desc'];
-  final sort = ['cost', 'rating'];
-  final double count = 20;
 
   @override
   _FiltersPageState createState() => _FiltersPageState();
 }
 
 class _FiltersPageState extends State<FiltersPage> {
-  SearchOptions _searchOptions;
+
   List<Category> _categories;
 
   @override
@@ -25,19 +23,17 @@ class _FiltersPageState extends State<FiltersPage> {
         _categories = value.map((e) => Category.fromJson(e)).toList();
       });
     });
-    _searchOptions = SearchOptions(
-        location: widget.location[0],
-        sort: widget.sort[0],
-        order: widget.order[0],
-        count: widget.count);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    final state=Provider.of<AppState>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Filter'),
+        //title: Consumer<String>(builder: (_,state,__)=>Text('Filter $state'),),
       ),
       body: Padding(
         padding: const EdgeInsets.all(15.0),
@@ -52,7 +48,7 @@ class _FiltersPageState extends State<FiltersPage> {
                     spacing: 10,
                     children:
                         List<Widget>.generate(_categories.length, (index) {
-                      bool isSelected = _searchOptions.categories
+                      bool isSelected = state.searchOptions.categories
                           .contains(_categories[index].id);
                       return FilterChip(
                         selectedColor: Theme.of(context).accentColor,
@@ -67,12 +63,12 @@ class _FiltersPageState extends State<FiltersPage> {
                         onSelected: (bool selected) {
                           if (selected) {
                             setState(() {
-                              _searchOptions.categories
+                              state.searchOptions.categories
                                   .add(_categories[index].id);
                             });
                           } else {
                             setState(() {
-                              _searchOptions.categories
+                              state.searchOptions.categories
                                   .remove(_categories[index].id);
                             });
                           }
@@ -92,8 +88,8 @@ class _FiltersPageState extends State<FiltersPage> {
             ),
             DropdownButton<String>(
               isExpanded: true,
-              value: _searchOptions.location,
-              items: widget.location.map((String value) {
+              value: state.searchOptions.location,
+              items: location.map((String value) {
                 return new DropdownMenuItem<String>(
                   value: value,
                   child: Text(value),
@@ -101,7 +97,7 @@ class _FiltersPageState extends State<FiltersPage> {
               }).toList(),
               onChanged: (value) {
                 setState(() {
-                  _searchOptions.location = value;
+                  state.searchOptions.location = value;
                 });
               },
             ),
@@ -112,14 +108,14 @@ class _FiltersPageState extends State<FiltersPage> {
               'Order By:',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
             ),
-            for (int i = 0; i < widget.order.length; i++)
+            for (int i = 0; i < order.length; i++)
               RadioListTile(
-                title: Text(widget.order[i]),
-                value: widget.order[i],
-                groupValue: _searchOptions.order,
+                title: Text(order[i]),
+                value: order[i],
+                groupValue: state.searchOptions.order,
                 onChanged: (selection) {
                   setState(() {
-                    _searchOptions.order = selection;
+                    state.searchOptions.order = selection;
                   });
                 },
               ),
@@ -132,14 +128,14 @@ class _FiltersPageState extends State<FiltersPage> {
             ),
             Wrap(
               spacing: 10,
-              children: widget.sort.map<ChoiceChip>((sort) {
+              children: sort.map<ChoiceChip>((sort) {
                 return ChoiceChip(
                   label: Text(sort),
-                  selected: _searchOptions.sort == sort,
+                  selected: state.searchOptions.sort == sort,
                   onSelected: (selected) {
                     if (selected)
                       setState(() {
-                        _searchOptions.sort = sort;
+                        state.searchOptions.sort = sort;
                       });
                   },
                 );
@@ -153,17 +149,17 @@ class _FiltersPageState extends State<FiltersPage> {
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
             ),
             Slider(
-                value: _searchOptions.count ?? 5,
-                label: _searchOptions.count.round().toString(),
+                value: state.searchOptions.count ?? 5,
+                label: state.searchOptions.count.round().toString(),
                 divisions: 3,
                 min: 5,
-                max: widget.count,
+                max: count,
                 onChanged: (value) {
                   setState(() {
-                    _searchOptions.count = value;
+                    state.searchOptions.count = value;
                   });
                 }),
-            SizedBox(
+            /*SizedBox(
               height: 10,
             ),
             Row(
@@ -185,7 +181,7 @@ class _FiltersPageState extends State<FiltersPage> {
                 ),
                 FlatButton(
                   onPressed: () {
-                    Navigator.pop(context, _searchOptions);
+                    Navigator.pop(context, state.searchOptions);
                   },
                   padding: EdgeInsets.symmetric(horizontal: 30, vertical: 10),
                   //shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -197,7 +193,7 @@ class _FiltersPageState extends State<FiltersPage> {
                   color: Theme.of(context).accentColor,
                 ),
               ],
-            )
+            )*/
           ],
         ),
       ),
